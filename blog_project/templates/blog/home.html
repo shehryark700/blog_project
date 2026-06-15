@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Django Blog{% endblock %}
+
+{% block content %}
+    <h1>Latest Posts</h1>
+
+    <form method="get" class="search-form">
+        {{ search_form.query }}
+        <button type="submit" class="btn">Search</button>
+    </form>
+
+    {% if query %}
+        <p>Search results for "<strong>{{ query }}</strong>" ({{ paginator.count }} found) &mdash;
+            <a href="{% url 'home' %}">Clear</a>
+        </p>
+    {% endif %}
+
+    {% for post in posts %}
+        <article class="post-list-item">
+            {% if post.image %}
+                <img class="post-image" src="{{ post.image.url }}" alt="{{ post.title }}">
+            {% endif %}
+            <h2><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h2>
+            <p class="post-meta">By {{ post.author.username }} on {{ post.published_at|date:"F j, Y" }}</p>
+            <p class="post-excerpt">{{ post.content|truncatewords:40 }}</p>
+            <a href="{{ post.get_absolute_url }}" class="btn">Read more</a>
+        </article>
+    {% empty %}
+        <p class="empty-state">No posts found.</p>
+    {% endfor %}
+
+    {% if is_paginated %}
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+                <a href="?{% if query %}query={{ query }}&{% endif %}page={{ page_obj.previous_page_number }}" class="btn btn-secondary">Previous</a>
+            {% endif %}
+            <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+            {% if page_obj.has_next %}
+                <a href="?{% if query %}query={{ query }}&{% endif %}page={{ page_obj.next_page_number }}" class="btn btn-secondary">Next</a>
+            {% endif %}
+        </div>
+    {% endif %}
+{% endblock %}
